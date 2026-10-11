@@ -1,0 +1,19 @@
+
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install Python 3
+  ansible.builtin.apt:
+    name: python3
+    state: present
+
+- name: Check Python version
+  ansible.builtin.command: python3 --version
+  register: python_version
+  changed_when: false
+
+- name: Display Python version
+  ansible.builtin.debug:
+    msg: "{{ python_version.stdout }}"

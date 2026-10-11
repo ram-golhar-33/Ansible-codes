@@ -1,63 +1,8 @@
 
 ---
-- name: Install Java 8 and Java 21 on workers
-  hosts: servers
-  become: true
-  gather_facts: true
+- name: Install Python on worker nodes
+  hosts: worker1
+  become: yes
 
-  tasks:
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: true
-        cache_valid_time: 3600
-
-    - name: Install Java 8
-      ansible.builtin.apt:
-        name: openjdk-8-jdk
-        state: present
-
-    - name: Install Java 21
-      ansible.builtin.apt:
-        name: openjdk-21-jdk
-        state: present
-
-    - name: Find Java 8 executable
-      ansible.builtin.shell:
-        cmd: |
-          find /usr/lib/jvm -path '*java-8-openjdk*' -type f -name java | head -n 1
-      register: java8_path
-      changed_when: false
-
-    - name: Verify Java 8 executable exists
-      ansible.builtin.assert:
-        that:
-          - java8_path.stdout | length > 0
-        fail_msg: "Java 8 executable was not found under /usr/lib/jvm."
-
-    - name: Register Java 8 with update-alternatives
-      ansible.builtin.command:
-        argv:
-          - update-alternatives
-          - --install
-          - /usr/bin/java
-          - java
-          - "{{ java8_path.stdout }}"
-          - "1080"
-
-    - name: Set Java 8 as default
-      ansible.builtin.command:
-        argv:
-          - update-alternatives
-          - --set
-          - java
-          - "{{ java8_path.stdout }}"
-
-    - name: Verify default Java version
-      ansible.builtin.command:
-        cmd: java -version
-      register: java_version
-      changed_when: false
-
-    - name: Display default Java version
-      ansible.builtin.debug:
-        var: java_version.stderr
+  roles:
+    - python
